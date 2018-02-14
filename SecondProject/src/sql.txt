@@ -1,0 +1,165 @@
+Step 7: Create a new Database, a new Table in the Database, Insert Records, Query and Update
+A MySQL server contains many databases. A database contains many tables. A table contains rows (records) and columns (fields).
+
+Let's create a database called "studentdb", and a table called "class101" in the database. The table shall have three columns: id (of the type INT - integer), name (of the type VARCHAR(50) - variable-length string of up to 50 characters), gpa (of the type FLOAT - floating-point number).
+
+CAUTION: Programmers don't use blank and special characters in NAMES (database names, table names, column names). It is either not supported, or will pose you many more challenges.
+
+Tips on Client's Session
+Before we proceed, here are some tips on using the client:
+
+You need to terminate your command with a semicolon (;), which sends the command to the server for processing. E.g.,
+mysql> select * from class101 ;
+-- Terminate a command with ';' to send the command to the server for processing
+A command can span several lines. The prompt for subsequent lines changes to -> to denote continuation. You need to terminate the command with a semicolon (;). E.g.,
+mysql> select * 
+    -> from class101
+    -> 
+    -> ;
+-- A command can span several lines, ended with a semicolon.
+In other words, if you forget to type ';' before hitting enter, you can type the ';' on the next line.
+You can use \c to cancel (abort) the current command. E.g.,
+mysql> select * from class101 \c
+-- abort (cancel) the command
+If you open a single quote, without closing it, the continuation prompt changes to '> (instead of ->). For example,
+mysql> select 'xxx
+    '> '\c        // close the single-quote and abort
+You can use up/down arrow keys to retrieve the previous/next commands (from the history commands).
+(For Windows) You should enable copy/paste functions of CMD shell. To enable copy/paste, click the CMD's icon ? Properties ? Options ? Edit Options ? Check "QuickEdit Mode". You can then select the desired texts and use a "right-click" to copy the selected text; another "right-click" to paste.
+SQL Programming
+Let's start a client with our newly-created user "myuser".
+
+-- Start a client, IF IT IS NOT STARTED
+mysql -u myuser -p     // Windows
+./mysql -u myuser -p   // Mac OS X
+   
+-- Create a new database called 'studentdb'
+mysql> create database if not exists studentdb;
+Query OK, 1 row affected (0.08 sec)
+   
+-- List all the databases in this server
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| ......             |
+| studentdb          |
+| ......             |
++--------------------+
+x rows in set (0.07 sec)
+   
+-- Use 'studentdb' database as the default database
+-- You can refer to tables in the default database by the 'tablename' alone, instead of 'databasename.tablename'
+mysql> use studentdb;
+Database changed
+   
+-- Remove the table 'class101' in the default database if it exists
+mysql> drop table if exists class101;
+Query OK, 0 rows affected, 1 warning (0.15 sec)
+   
+-- Create a new table called 'class101' in the default database 'studentdb',
+--   with 3 columns of the specified types
+mysql> create table class101 (id int, name varchar(50), gpa float);
+Query OK, 0 rows affected (0.15 sec)
+   
+-- List all the tables in the default database 'studentdb'
+mysql> show tables;
++---------------------+
+| Tables_in_studentdb |
++---------------------+
+| class101            |
++---------------------+
+1 row in set (0.00 sec)
+   
+-- Describe the 'class101' table (List its columns' definition)
+mysql> describe class101;
++-------+-------------+------+-----+---------+-------+
+| Field | Type        | Null | Key | Default | Extra |
++-------+-------------+------+-----+---------+-------+
+| id    | int(11)     | YES  |     | NULL    |       |
+| name  | varchar(50) | YES  |     | NULL    |       |
+| gpa   | float       | YES  |     | NULL    |       |
++-------+-------------+------+-----+---------+-------+
+3 rows in set (0.04 sec)
+   
+-- Insert a row into 'class101' table.
+-- Strings are single-quoted. No quotes for INT and FLOAT values.
+mysql> insert into class101 values (11, 'Tan Ah Teck', 4.8);
+Query OK, 1 row affected (0.03 sec)
+   
+-- Insert another row
+mysql> insert into class101 values (22, 'Mohamed Ali', 4.9);
+Query OK, 1 row affected (0.03 sec)
+   
+-- Select all columns (*) from table 'class101', and all rows
+mysql> select * from class101;
++----+-------------+------+
+| id | name        | gpa  |
++----+-------------+------+
+| 11 | Tan Ah Teck |  4.8 |
+| 22 | Mohamed Ali |  4.9 |
++----+-------------+------+
+2 rows in set (0.00 sec)
+  
+-- Select some columns from table 'class101', and rows that match the conditions
+mysql> select name, gpa from class101 where gpa > 4.85;
++-------------+------+
+| name        | gpa  |
++-------------+------+
+| Mohamed Ali |  4.9 |
++-------------+------+
+1 rows in set (0.00 sec)
+  
+-- Update the given field of the selected records
+mysql> update class101 set gpa = 4.4 where name = 'Tan Ah Teck';
+Query OK, 1 row affected (0.05 sec)
+Rows matched: 1  Changed: 1  Warnings: 0   
+ 
+mysql> select * from class101;
++----+-------------+------+
+| id | name        | gpa  |
++----+-------------+------+
+| 11 | Tan Ah Teck |  4.4 |
+| 22 | Mohamed Ali |  4.9 |
++----+-------------+------+
+2 rows in set (0.00 sec)
+ 
+-- Delete selected records
+mysql> delete from class101 where id = 22;
+Query OK, 1 row affected (0.03 sec)
+   
+mysql> select * from class101;
++----+-------------+------+
+| id | name        | gpa  |
++----+-------------+------+
+| 11 | Tan Ah Teck |  4.4 |
++----+-------------+------+
+1 rows in set (0.00 sec)
+ 
+-- You can STORE a set of SQL commands in a FILE (called SQL script) and run the script,
+--   instead entering the commands one-by-one.
+-- Use a programming text editor to CREATE a NEW FILE called "mycommands.sql" 
+--   containing the following three SQL statements.
+-- (For Windows) Save the file under "c:\myWebProject".
+-- (For Mac OS X) Save the file under "~\myWebProject", where "~" denotes home.
+insert into class101 values (33, 'Kumar', 4.8);
+insert into class101 values (44, 'Kevin', 4.6);
+Select * from class101;
+
+-- After you created the file, you can use the following "source" command 
+--   to run the SQL script.
+-- You need to provide the full path to the script.
+-- (For Windows) The filename is c:\myWebProject\mycommands.sql.
+-- (For Mac OS X) The filename is ~/myWebProject/mycommands.sql
+mysql> source c:\myWebProject\mycommands.sql   // For Windows
+mysql> source ~/myWebProject/mycommands.sql    // For Mac OS X
+Query OK, 1 row affected (0.00 sec)   -- INSERT command output
+Query OK, 1 row affected (0.00 sec)   -- INSERT command output
++------+-------------+------+         -- SELECT command output
+| id   | name        | gpa  |
++------+-------------+------+
+|   11 | Tan Ah Teck |  4.4 |
+|   33 | Kumar       |  4.8 |
+|   44 | Kevin       |  4.6 |
++------+-------------+------+
+3 rows in set (0.00 sec)
